@@ -5,9 +5,9 @@ import (
 	"uuid"
 )
 
-type StreetEntry struct {
-	Time        time.Time
-	ImageLink   string
-	SafetyScore int
-	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+type UserEntry struct {
+	Time         time.Time
+	ProfileImage string
+	BestScore    int
+	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
 }

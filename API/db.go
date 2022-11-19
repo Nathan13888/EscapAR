@@ -34,10 +34,10 @@ func GetDB() *gorm.DB {
 
 func InitDB() {
 	db := GetDB()
-	db.AutoMigrate(StreetEntry{})
+	db.AutoMigrate(UserEntry{})
 }
 
-func DBAddEntry(newEntry *StreetEntry) StreetEntry {
+func DBAddEntry(newEntry *UserEntry) UserEntry {
 	res := GetDB().Create(newEntry)
 	if res.Error != nil {
 		panic(res.Error)
@@ -45,11 +45,11 @@ func DBAddEntry(newEntry *StreetEntry) StreetEntry {
 	return *newEntry
 }
 
-func DBUpdateEntry(entry *StreetEntry) {
+func DBUpdateEntry(entry *UserEntry) {
 	GetDB().Save(entry)
 }
 
-func DBGetEntry(id string) (StreetEntry, bool) {
+func DBGetEntry(id string) (UserEntry, bool) {
 	var ret StreetEntry
 	res := GetDB().First(ret, id)
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {

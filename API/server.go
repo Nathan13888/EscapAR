@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"runtime"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -14,17 +13,13 @@ import (
 )
 
 func main() {
-	if runtime.GOOS != "linux" && runtime.GOOS != "android" {
-		log.Error().Str("GOOS", runtime.GOOS).Msg("UNTESTED/UNSUPPORTED Operating System Detected!")
-	}
-
 	r := mux.NewRouter()
 	server := &http.Server{
 		Handler: r,
 		Addr:    "0.0.0.0:3000",
 	}
 
-	log.Info().Msg("Starting Red Flags")
+	log.Info().Msg("Starting EscapAR API server")
 	InitDB()
 
 	// r.HandleFunc("/", ).Methods("GET")
@@ -50,7 +45,7 @@ func main() {
 }
 
 func postEntry(w http.ResponseWriter, r *http.Request) {
-	var entry StreetEntry
+	var entry UserEntry
 	if err := json.NewDecoder(r.Body).Decode(&entry); err != nil {
 		panic(err)
 	}
@@ -59,7 +54,7 @@ func postEntry(w http.ResponseWriter, r *http.Request) {
 }
 
 func postPath(w http.ResponseWriter, r *http.Request) {
-	res := make([]StreetEntry, 0)
+	res := make([]UserEntry, 0)
 	var ids []string
 	if err := json.NewDecoder(r.Body).Decode(&ids); err != nil {
 		panic(err)
@@ -67,7 +62,7 @@ func postPath(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func addEntry(entry StreetEntry) StreetEntry {
+func addEntry(entry UserEntry) UserEntry {
 	return DBAddEntry(&entry)
 }
 
@@ -76,7 +71,7 @@ func getAssets(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&ids); err != nil {
 		panic(err)
 	}
-	res := make([]StreetEntry, 0)
+	res := make([]UserEntry, 0)
 	for _, id := range ids {
 		entry, exists := DBGetEntry(id)
 		if !exists {
