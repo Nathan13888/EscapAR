@@ -1,0 +1,42 @@
+[global]
+  checkNewVersion = false
+  sendAnonymousUsage = false
+
+[api]
+  dashboard = true
+  #insecure = true
+
+[tls.certificates]
+  certFile = "/certs/home.crt"
+  keyFile = "/certs/home.key"
+  stores = ["default"]
+
+[certificatesResolvers.lets-encrypt.acme]
+  email = ""
+  storage = "acme.json"
+  [certificatesResolvers.lets-encrypt.acme.tlsChallenge]
+
+#[certificatesResolvers.local.acme]
+#  storage = "acme.json"
+#  tlschallenge=true
+
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+    #[entryPoints.web.http.redirections.entryPoint]
+    #  to = "websecure"
+    #  scheme = "https"
+
+  [entryPoints.websecure]
+    address = ":443"
+
+[providers.docker]
+network = "web"
+watch = true
+defaultRule = "Host(`127.0.0.1`) && PathPrefix(`/{{ normalize .Name }}`)"
+endpoint = "unix:///var/run/docker.sock"
+useBindPortIP = true
+exposedByDefault = false
+
+[providers.file]
+  filename = "traefik_dynamic.toml"

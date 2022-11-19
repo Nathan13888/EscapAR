@@ -1,0 +1,103 @@
+version: "3.3"
+
+networks:
+  web:
+    external: true
+
+services:
+  traefik:
+    image: traefik:v2.2
+    network_mode: "host"
+    restart: unless-stopped
+    container_name: traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.toml:/etc/traefik/traefik.toml:ro
+      - ./traefik_dynamic.toml:/traefik_dynamic.toml:ro
+      - ./acme.json:/acme.json
+      - ./app/certs:/certs:ro
+    labels:
+      - "traefik.enable=false"
+
+  db:
+    image: haproxy:2.5-alpine
+    restart: unless-stopped
+    container_name: db_haproxy
+    hostname: db
+    #sysctls:
+    #  - net.ipv4.ip_unprivileged_port_start=0
+    networks:
+      gitea:
+      cock:
+        ipv4_address: 172.30.0.11
+    ports:
+      - 192.168.10.225:5432:5432
+    volumes:
+      - ./app/Haproxy-Gitea/haproxy.conf:/usr/local/etc/haproxy/haproxy.cfg:ro
+
+  roach1:
+    image: cockroachdb/cockroach:v21.2.0
+    restart: unless-stopped
+    container_name: gitea_db1
+    hostname: roach1
+    entrypoint: 'cockroach start --certs-dir=/certs --join=roach1,roach2,roach3 --http-addr=0.0.0.0:8080 --advertise-addr=roach1'
+    volumes:
+      - ./db/GiteaC1/data:/cockroach/cockroach-data
+      - ./db/GiteaC1/certs:/certs
+      - ./db/GiteaCerts/ca.crt:/certs/ca.crt:ro
+      - ./db/GiteaCerts/ca.key:/certs/ca.key:ro
+    networks:
+      cock:
+      web:
+    ports:
+      - 192.168.10.225:18080:8080
+    expose:
+      - 26257
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.gc-router.tls=true"
+      - "traefik.http.routers.gc-router.rule=Host(`cockroach-gitea.local`)"
+      - "traefik.http.routers.gc-router.service=gitea-cockroach"
+      - "traefik.http.services.gitea-cockroach.loadbalancer.server.port=8080"
+        #      - "traefik.http.services.gitea-cockroach.loadbalancer.servers.url=`http://roach1"
+        #      - "traefik.http.services.gitea-cockroach.loadbalancer.servers.url=`http://roach2"
+        #      - "traefik.http.services.gitea-cockroach.loadbalancer.servers.url=`http://roach3"
+
+  roach2:
+    image: cockroachdb/cockroach:v21.2.0
+    restart: unless-stopped
+    container_name: gitea_db2
+    hostname: roach2
+    entrypoint: 'cockroach start --certs-dir=/certs --join=roach1,roach2,roach3 --http-addr=0.0.0.0:8080 --advertise-addr=roach2'
+    volumes:
+      - ./db/GiteaC2/data:/cockroach/cockroach-data
+      - ./db/GiteaC2/certs:/certs
+      - ./db/GiteaCerts/ca.crt:/certs/ca.crt:ro
+      - ./db/GiteaCerts/ca.key:/certs/ca.key:ro
+    networks:
+      cock:
+        ipv4_address: 172.30.0.12
+      web:
+    expose:
+      - 26257
+      - 8080
+
+  roach3:
+    image: cockroachdb/cockroach:v21.2.0
+    restart: unless-stopped
+    container_name: gitea_db3
+    hostname: roach3
+    entrypoint: 'cockroach start --certs-dir=/certs --join=roach1,roach2,roach3 --http-addr=0.0.0.0:8080 --advertise-addr=roach3'
+    volumes:
+      - ./db/GiteaC3/data:/cockroach/cockroach-data
+      - ./db/GiteaC3/certs:/certs
+      - ./db/GiteaCerts/ca.crt:/certs/ca.crt:ro
+      - ./db/GiteaCerts/ca.key:/certs/ca.key:ro
+    networks:
+      cock:
+        ipv4_address: 172.30.0.13
+      web:
+    expose:
+      - 26257
+      - 8080
