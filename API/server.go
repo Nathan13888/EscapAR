@@ -31,7 +31,7 @@ func main() {
 	// r.HandleFunc("/index.html", ).Methods("GET")
 	r.HandleFunc("/upload/entry", postEntry).Methods("POST")
 	r.HandleFunc("/upload/path", postPath).Methods("POST")
-	r.HandleFunc("/streets", getStreets).Methods("GET")
+	r.HandleFunc("/assets", getAssets).Methods("GET")
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
@@ -71,7 +71,7 @@ func addEntry(entry StreetEntry) StreetEntry {
 	return DBAddEntry(&entry)
 }
 
-func getStreets(w http.ResponseWriter, r *http.Request) {
+func getAssets(w http.ResponseWriter, r *http.Request) {
 	var ids []string
 	if err := json.NewDecoder(r.Body).Decode(&ids); err != nil {
 		panic(err)

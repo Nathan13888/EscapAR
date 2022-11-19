@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine as builder
+FROM golang:1.19-alpine as builder
 WORKDIR /build/
 COPY . .
 RUN apk add --no-cache make gcc musl-dev git
@@ -10,7 +10,7 @@ WORKDIR /app
 RUN apk add --no-cache tzdata
 RUN cp /usr/share/zoneinfo/America/Toronto /etc/localtime
 
-ENV USER=rf
+ENV USER=escapar
 ENV UID=12345
 ENV GID=23456
 RUN addgroup --gid $GID $USER
@@ -23,14 +23,14 @@ RUN adduser \
     --uid "$UID" \
     "$USER"
 
-RUN chown -R rf:rf .
+RUN chown -R escapar:escapar .
 RUN chmod -R 755 .
-USER rf
+USER escapar
 
-COPY --from=builder --chown=rf /build/bin/rf /app/rf
+COPY --from=builder --chown=escapar /build/bin/escapar /app/escapar
 
-VOLUME /app/.rf
+VOLUME /app/.escapar
 EXPOSE 3000
 
-ENTRYPOINT [ "/app/rf" ]
+ENTRYPOINT [ "/app/escapar" ]
 

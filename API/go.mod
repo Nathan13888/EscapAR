@@ -1,4 +1,4 @@
-module github.com/Nathan13888/RedFlags/api/v2
+module github.com/luwaidev/Hack-Western/v2
 
 go 1.17
 
