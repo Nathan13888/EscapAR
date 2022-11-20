@@ -28,7 +28,7 @@ public class PuzzleController : MonoBehaviour
         {
             p.Play();
             door.Play("Door Opened");
-            GameManager.gm.LoadWithDelay("Game",3);
+            GameManager.gm.LoadWithDelay("Main Menu",3);
         }
     }
 }
