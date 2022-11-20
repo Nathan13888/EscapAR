@@ -46,7 +46,7 @@ public class echo3D : MonoBehaviour
         #if UNITY_EDITOR
             Debug.unityLogger.logEnabled = true;
         #else
-            Debug.logger.logEnabled = false;
+            Debug.unityLogger.logEnabled = false;
         #endif
         
         // The echo3D server details
